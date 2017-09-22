@@ -7,21 +7,21 @@ class Reader:
                      "ttyUSB2", "ttyUSB3", "ttyUSB4", "ttyUSB5", "ttyUSB6", "ttyUSB7", "ttyUSB8"]
         self.baudrate = 19200
         self.ser = None
-        self.befehle = {"benutzer_anzahl": [0xF5, 0x09,
+        self.befehle = {"user_amount": [0xF5, 0x09,
                                             0x00,  # Null
                                             0x00,  # Null
                                             0x00,  # Null
                                             0x00,  # Null
                                             0x09,  # CHK (Build up through Byte 2 to Byte 6 as a XOR-Operation)
                                             0xF5],
-                        "abfrage_1zuN": [0xF5, 0x0C,
+                        "ask_1_to_N": [0xF5, 0x0C,
                                          0x00,  # Null
                                          0x00,  # Null
                                          0x00,  # Null
                                          0x00,  # Null
                                          0x0C,  # CHK (Build up through Byte 2 to Byte 6 as a XOR-Operation)
                                          0xF5],
-                        "abfrage_1zu1": [0xF5, 0x0B,
+                        "ask_1_to_1": [0xF5, 0x0B,
                                          0x00,  # Nutzer_ID 1Byte
                                          0x00,  # Nutzer_ID 2Byte
                                          0x00,  # Null
@@ -29,8 +29,8 @@ class Reader:
                                          0x00,  # CHK
                                          0xF5],
                         "fingerabdruck": [0xF5, 0x24, 0x00, 0x00, 0x00, 0x00, 0x24, 0xF5],
-                        "löschen_alle": [0xF5, 0x05, 0x00, 0x00, 0x00, 0x00, 0x05, 0xF5],
-                        "lösche_nutzer": [0xF5, 0x04,
+                        "delete_all": [0xF5, 0x05, 0x00, 0x00, 0x00, 0x00, 0x05, 0xF5],
+                        "delete_user": [0xF5, 0x04,
                                           0x00,  # Nutzer_ID 1-Byte (hohe Zahl bsp. ID = 1000)
                                           0x00,  # Nutzer_ID 2-Byte (kleine Zahl, bsp. ID = 1)
                                           0x00,  # Null
@@ -152,7 +152,7 @@ class Reader:
             print("Close connection: ok")
         else:
             print("Close connection: failed")
-        if self.sende_befehl_mit_nutzer(befehl="abfrage_1zuN"):
+        if self.sende_befehl_mit_nutzer(befehl="ask_1_to_N"):
             print("Read fingerprint 1 to N: ok")
         else:
             print("Read fingerprint 1 to N: failed")
@@ -160,11 +160,11 @@ class Reader:
             print("Add User: ok")
         else:
             print("Add user: failed")
-        if self.sende_befehl_mit_nutzer(befehl="lösche_nutzer", user=[0x00, 0x05]):
+        if self.sende_befehl_mit_nutzer(befehl="delete_user", user=[0x00, 0x05]):
             print("User deleted: ok")
         else:
             print("User deleted: failed")
-        if self.sende_befehl_mit_nutzer(befehl="abfrage_1zu1", user=[0x00, 0x01]):
+        if self.sende_befehl_mit_nutzer(befehl="ask_1_to_1", user=[0x00, 0x01]):
             print("Read fingerprint 1 to 1: ok")
         else:
             print("Read fingerprint 1 to 1: failed")
