@@ -6,52 +6,60 @@ class Reader:
         self.port = ["COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM9", "ttyUSB0", "ttyUSB1",
                      "ttyUSB2", "ttyUSB3", "ttyUSB4", "ttyUSB5", "ttyUSB6", "ttyUSB7", "ttyUSB8"]
         self.baudrate = 19200
+        self.bytemode = serial.EIGHTBITS
         self.ser = None
-        self.befehle = {"user_amount": [0xF5, 0x09,
-                                            0x00,  # Null
-                                            0x00,  # Null
-                                            0x00,  # Null
-                                            0x00,  # Null
-                                            0x09,  # CHK (Build up through Byte 2 to Byte 6 as a XOR-Operation)
-                                            0xF5],
-                        "ask_1_to_N": [0xF5, 0x0C,
-                                         0x00,  # Null
-                                         0x00,  # Null
-                                         0x00,  # Null
-                                         0x00,  # Null
-                                         0x0C,  # CHK (Build up through Byte 2 to Byte 6 as a XOR-Operation)
-                                         0xF5],
-                        "ask_1_to_1": [0xF5, 0x0B,
-                                         0x00,  # Nutzer_ID 1Byte
-                                         0x00,  # Nutzer_ID 2Byte
-                                         0x00,  # Null
-                                         0x00,  # Null
-                                         0x00,  # CHK
-                                         0xF5],
-                        "fingerabdruck": [0xF5, 0x24, 0x00, 0x00, 0x00, 0x00, 0x24, 0xF5],
+        self.befehle = {"user_amount": [0xF5,
+                                        0x09,  # Command code
+                                        0x00,  # Null
+                                        0x00,  # Null
+                                        0x00,  # Null
+                                        0x00,  # Null
+                                        0x09,  # CHK (Build up through Byte 2 to Byte 6 as a XOR-Operation)
+                                        0xF5],
+                        "ask_1_to_N": [0xF5,
+                                       0x0C,  # Command code
+                                       0x00,  # Null
+                                       0x00,  # Null
+                                       0x00,  # Null
+                                       0x00,  # Null
+                                       0x0C,  # CHK (Build up through Byte 2 to Byte 6 as a XOR-Operation)
+                                       0xF5],
+                        "ask_1_to_1": [0xF5,
+                                       0x0B,  # Command code
+                                       0x00,  # Nutzer_ID 1Byte
+                                       0x00,  # Nutzer_ID 2Byte
+                                       0x00,  # Null
+                                       0x00,  # Null
+                                       0x00,  # CHK
+                                       0xF5],
+                        "get_fingerprint": [0xF5, 0x24, 0x00, 0x00, 0x00, 0x00, 0x24, 0xF5],
                         "delete_all": [0xF5, 0x05, 0x00, 0x00, 0x00, 0x00, 0x05, 0xF5],
-                        "delete_user": [0xF5, 0x04,
-                                          0x00,  # Nutzer_ID 1-Byte (hohe Zahl bsp. ID = 1000)
-                                          0x00,  # Nutzer_ID 2-Byte (kleine Zahl, bsp. ID = 1)
-                                          0x00,  # Null
-                                          0x00,  # Null
-                                          0x00,  # CHK
-                                          0xF5],
-                        "add_user": [[0xF5, 0x01,
+                        "delete_user": [0xF5,
+                                        0x04,  # Command code
+                                        0x00,  # Nutzer_ID 1-Byte (hohe Zahl bsp. ID = 1000)
+                                        0x00,  # Nutzer_ID 2-Byte (kleine Zahl, bsp. ID = 1)
+                                        0x00,  # Null
+                                        0x00,  # Null
+                                        0x00,  # CHK
+                                        0xF5],
+                        "add_user": [[0xF5,
+                                      0x01,  # Command code
                                       0x00,  # User-ID
                                       0x00,  # User-ID
                                       0x00,  # Privileges (0x01, 0x02, 0x03)
                                       0x00,  # Null
                                       0x00,  # CHK
                                       0xF5],
-                                     [0xF5, 0x02,
+                                     [0xF5,
+                                      0x02,  # Command code
                                       0x00,  # User-ID
                                       0x00,  # User-ID
                                       0x00,  # Privileges (0x01, 0x02, 0x03)
                                       0x00,  # Null
                                       0x00,  # CHK
                                       0xF5],
-                                     [0xF5, 0x03,
+                                     [0xF5,
+                                      0x03,  # Command code
                                       0x00,  # User-ID
                                       0x00,  # User-ID
                                       0x00,  # Privileges (0x01, 0x02, 0x03)
@@ -64,7 +72,7 @@ class Reader:
             if self.ser == None:
                 for port in self.port:
                     try:
-                        self.ser = serial.Serial(port=port, baudrate=self.baudrate)
+                        self.ser = serial.Serial(port=port, baudrate=self.baudrate, bytesize=self.bytemode)
                         return True
                     except Exception as e:
                         print(e)
@@ -104,31 +112,45 @@ class Reader:
         try:
             if befehl == "add_user":
                 for i in self.befehle[befehl]:
-                    if self.ser == None:
+                    if self.ser is None:
                         self.open_connection()
                         a = i
                         self.ser.write([a[0], a[1], user[0], user[1], privileges, a[5],
                                 a[1] ^ user[0] ^ user[1] ^ privileges ^ a[5], a[7]])
-                        self.daten_erhalten()
+                        if self.daten_erhalten():
+                            pass
+                        else:
+                            self.close_connection()
+                            return False
                         self.close_connection()
                     else:
                         a = self.befehle[befehl]
                         self.ser.write([a[0], a[1], user[0], user[1], privileges, a[5],
                                 a[1] ^ user[0] ^ user[1] ^ privileges ^ a[5], a[7]])
-                        self.daten_erhalten()
+                        if self.daten_erhalten():
+                            pass
+                        else:
+                            return False
             else:
-                if self.ser == None:
+                if self.ser is None:
                     self.open_connection()
                     a = self.befehle[befehl]
                     self.ser.write([a[0], a[1], user[0], user[1], privileges, a[5],
                                 a[1] ^ user[0] ^ user[1] ^ privileges ^ a[5], a[7]])
-                    self.daten_erhalten()
+                    if self.daten_erhalten():
+                        pass
+                    else:
+                        self.close_connection()
+                        return False
                     self.close_connection()
                 else:
                     a = self.befehle[befehl]
                     self.ser.write([a[0], a[1], user[0], user[1], privileges, a[5],
                                 a[1] ^ user[0] ^ user[1] ^ privileges ^ a[5], a[7]])
-                    self.daten_erhalten()
+                    if self.daten_erhalten():
+                        pass
+                    else:
+                        return False
             return True
         except Exception as e:
             print(e)
@@ -137,10 +159,15 @@ class Reader:
     def daten_erhalten(self):
         try:
             a = self.ser.read(8)
-            print(str(a))
-            a = str(a)
+            b = str(a).split("\\")
+            if b[5] == "x00":  # Check if command was succesfull else return False
+                pass
+            elif b[5] == "x01" or b[5] == "x05" or b[5] == "x07" or b[5] == "x08" or b[5] == "x04":
+                return False
+            return True
         except Exception as e:
             print(e)
+            return False
 
     def test(self):
         if self.open_connection():
