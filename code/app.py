@@ -139,6 +139,29 @@ class Reader:
                             pass
                         else:
                             return False
+            elif command == "acquire_priviliege":
+                if self.ser is None:
+                    self.open_connection()
+                    a = self.befehle[command]
+                    self.ser.write([a[0], a[1], user[0], user[1], privileges, a[5],  # see previous comment
+                                a[1] ^ user[0] ^ user[1] ^ privileges ^ a[5], a[7]])
+                    result = self.receive_data(command)
+                    if result:
+                        pass
+                    else:
+                        self.close_connection()
+                        return False
+                    self.close_connection()
+                else:
+                    a = self.befehle[command]
+                    self.ser.write([a[0], a[1], user[0], user[1], privileges, a[5],  # see previous comment
+                                a[1] ^ user[0] ^ user[1] ^ privileges ^ a[5], a[7]])
+                    result = self.receive_data(command)
+                    if result:
+                        pass
+                    else:
+                        return False
+                return result
             else:
                 if self.ser is None:
                     self.open_connection()
@@ -188,11 +211,11 @@ class Reader:
                     return False
             elif command == "acquire_priviliege":
                 if b[5] == "x01":
-                    print("Admin")
+                    return "Admin"
                 elif b[5] == "x02":
-                    print("User")
+                    return "User"
                 elif b[5] == "x03":
-                    print("Guest")
+                    return "Guest"
                 else:
                     return False
             else:
@@ -233,8 +256,10 @@ class Reader:
         else:
             print("Read fingerprint 1 to 1: failed")
 
-        if self.send_command(command="acquire_priviliege", user=[0x00, 0x01]):
-            print("success")
+        result = self.send_command(command="acquire_priviliege", user=[0x00, 0x01])
+        print(result)
+        if result == "Admin" or result == "User" or result == "Guest":
+            print("success", "privileges are:", result)
         else:
             print("error")
 
