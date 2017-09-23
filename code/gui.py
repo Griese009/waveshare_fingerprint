@@ -8,6 +8,7 @@ class App:
         self.reader = app.Reader()  # write the Reader in a local variable
         self.window = tk.Tk()  # create TkInter object
         self.window.geometry("430x170+30+30")  # Size the windows
+        self.window.title("Waveshare Demo (english/german)")
         self.button_1 = tk.Button(self.window, text="read Fingerprint 1 to N", command=lambda  # add Buttons and labels
             *args: self.command("ask_1_to_N"))
         self.button_1.place(x=20, y=10)
