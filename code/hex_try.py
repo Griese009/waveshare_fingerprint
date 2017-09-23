@@ -1,13 +1,19 @@
-def wert_tauschen(wert):
-    a = str(hex(wert))
-    print(a)
+def wert_tauschen(wert, art="g"):
+    try:
+        a = str(hex(wert))
+    except Exception as e:
+        a = wert
     b = a[2:]
-    print(b)
     ergebnisA = 0b0000
     ergebnisB = 0b0000
     ergebnis = []
+    length = 0
+    if art == "g":
+        length = 8
+    elif art == "z":
+        length = 16 + 2
     for d in b:
-        if len(bin(ergebnisA)) < 8:
+        if len(bin(ergebnisA)) <= length:
             if d == "0":
                 bit = 0b0000
                 ergebnisA = ergebnisA ^ bit
@@ -143,8 +149,13 @@ def wert_tauschen(wert):
             else:
                 print("Error")
                 break
-        ergebnisA = ergebnisA >> 4
+    if length == 8:
         ergebnisB = ergebnisB >> 4
         ergebnis.append(ergebnisA)
         ergebnis.append(ergebnisB)
-        return ergebnis
+    elif length == 18:
+        ergebnis = (ergebnisA >> 4)
+    return ergebnis
+
+if __name__ == "__main__":
+    print(wert_tauschen(61483, art="z"))

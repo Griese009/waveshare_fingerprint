@@ -1,10 +1,11 @@
 import serial
+import hex_try
 
 
 class Reader:
     def __init__(self):
-        self.port = ["COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM9", "ttyUSB0", "ttyUSB1",
-                     "ttyUSB2", "ttyUSB3", "ttyUSB4", "ttyUSB5", "ttyUSB6", "ttyUSB7", "ttyUSB8"]
+        self.port = ["COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+                     "ttyUSB0", "ttyUSB1", "ttyUSB2", "ttyUSB3", "ttyUSB4", "ttyUSB5", "ttyUSB6", "ttyUSB7", "ttyUSB8"]
         self.baudrate = 19200
         self.bytemode = serial.EIGHTBITS
         self.ser = None
@@ -162,6 +163,26 @@ class Reader:
                     else:
                         return False
                 return result
+            elif command == "user_amount":
+                if self.ser is None:
+                    self.open_connection()
+                    a = self.befehle[command]
+                    self.ser.write(a)
+                    value = self.receive_data(command)
+                    if value == 0 or value:
+                        self.close_connection()
+                        return value
+                    else:
+                        self.close_connection()
+                        return False
+                else:
+                    a = self.befehle[command]
+                    self.ser.write([a[0], a[1], user[0], user[1], privileges, a[5],  # see previous comment
+                                a[1] ^ user[0] ^ user[1] ^ privileges ^ a[5], a[7]])
+                    if self.receive_data(command):
+                        pass
+                    else:
+                        return False
             else:
                 if self.ser is None:
                     self.open_connection()
@@ -192,7 +213,8 @@ class Reader:
         try:
             a = self.ser.read(8)  # receive data from sensor
             b = str(a).split("\\")  # reformat these data and split them
-            if command != "acquire_priviliege" and command != "ask_1_to_N":  # check the command
+            if command != "acquire_priviliege" and command != "ask_1_to_N" and command != "user_amount":
+                # check the command
                                                                             #  because some commands are special
                 if b[5] == "x00":  # Check if command was succesfull else return False
                     # the fifth byte shows if the command was successfull or not
@@ -218,6 +240,13 @@ class Reader:
                     return "Guest"
                 else:
                     return False
+            elif command == "user_amount":
+                if b[5] == "x00":
+                    number = b[3][1:] + b[4][1:]
+                    number = hex_try.wert_tauschen(number, "z")
+                    return number
+                else:
+                    return False
             else:
                 if b[5] == "x05":
                     print("No such user")
@@ -230,6 +259,7 @@ class Reader:
             return False
 
     def test(self):  # little test script inside the programm
+        self.send_command("user_amount", [0x00, 0x00], 0x00)
         if self.open_connection():
             print("Open connection: ok")
         else:
@@ -262,6 +292,7 @@ class Reader:
             print("success", "privileges are:", result)
         else:
             print("error")
+
 
 
 if __name__ == "__main__":
