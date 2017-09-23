@@ -1,17 +1,21 @@
 def wert_tauschen(wert, art="g"):
     try:
         a = str(hex(wert))
-    except Exception as e:
-        a = wert
+    except Exception:
+        a = wert  # i just trust everyone the he/she types values isnated of characters
     b = a[2:]
+    while len(b) != 4:
+        b = "0" + b
     ergebnisA = 0b0000
     ergebnisB = 0b0000
     ergebnis = []
     length = 0
-    if art == "g":
+    if art == "g":  # controll of value should be put together or not (from command together if for a command seperate)
+        # g = seperating them into 2 8-bit values
         length = 8
     elif art == "z":
-        length = 16 + 2
+        # z = put them into 1 16-bit values
+        length = 16 + 2  # +2 because the last hex number would not be count if only 16 (maybe because the b' indicates)
     for d in b:
         if len(bin(ergebnisA)) <= length:
             if d == "0":
@@ -150,12 +154,13 @@ def wert_tauschen(wert, art="g"):
                 print("Error")
                 break
     if length == 8:
-        ergebnisB = ergebnisB >> 4
+        ergebnisA = ergebnisA >> 4
+        ergebnisB = ergebnisB >> 4  # at ergebnisB the value is 4 bits bigger as it should so bit manipulation
         ergebnis.append(ergebnisA)
         ergebnis.append(ergebnisB)
     elif length == 18:
-        ergebnis = (ergebnisA >> 4)
-    return ergebnis
+        ergebnis = (ergebnisA >> 4)  # see comment above
+    return ergebnis  # return the values
 
 if __name__ == "__main__":
     print(wert_tauschen(61483, art="z"))
