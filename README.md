@@ -17,7 +17,7 @@ First of all import the script and then u can call the following commands with t
 * acquire_privilege (user_id must be set)
 * examples:
   * app.Reader().send_command(command="ask_1_to_1", user=[0x00, 0x01]) (here you are asking if the sensor has a user at user id 1 and if True he tries to acquire the fingerprint)
-  * app.Reader().send_command(command="add_user", user=[0x01, 0x00], privileges=0x02) (here you are adding a user with the ID 256 and gives him the privilege number 2)
+  * app.Reader().send_command(command="add_user", user=[0x01, 0x00], privileges=0x02) (here you are adding a user with the ID 256 and gives him the privilege number 2)                                                                                                         
 ps: Id do not recommend to go further than 255 (at user ID) because there is a bug which I had not fixed yet and prvilege id is from 1 to 3
 --------------------------------------------------------------------------------------------------------------
 Code Written in Python 3.6.2                                                                                                         
