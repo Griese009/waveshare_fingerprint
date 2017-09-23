@@ -188,12 +188,12 @@ class Reader:
             return False
 
     def receive_data(self, command):
-        assert isinstance(command, str)
-        print(command)
+        assert isinstance(command, str)  # check if given command is a string
         try:
             a = self.ser.read(8)  # receive data from sensor
             b = str(a).split("\\")  # reformat these data and split them
-            if command != "acquire_priviliege" and command != "ask_1_to_N":
+            if command != "acquire_priviliege" and command != "ask_1_to_N":  # check the command
+                                                                            #  because some commands are special
                 if b[5] == "x00":  # Check if command was succesfull else return False
                     # the fifth byte shows if the command was successfull or not
                     pass
@@ -209,7 +209,7 @@ class Reader:
                     elif b[5] == "x08":
                         print("Acquisition timeout")
                     return False
-            elif command == "acquire_priviliege":
+            elif command == "acquire_priviliege":  # here the 5ft byte shows the privilege
                 if b[5] == "x01":
                     return "Admin"
                 elif b[5] == "x02":
@@ -229,7 +229,7 @@ class Reader:
             print(e)
             return False
 
-    def test(self):
+    def test(self):  # little test script inside the programm
         if self.open_connection():
             print("Open connection: ok")
         else:
