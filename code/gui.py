@@ -21,7 +21,7 @@ class App:
         self.button_4 = tk.Button(self.window, text="delete User", command=lambda
             *args: self.command("delete_user"))
         self.button_4.place(x=180, y=10)
-        self.button_5 = tk.Button(self.window, text="acquire priviliege", command=lambda
+        self.button_5 = tk.Button(self.window, text="acquire privilege", command=lambda
             *args: self.command("acquire_priviliege"))
         self.button_5.place(x=180, y=40)
         self.button_6 = tk.Button(self.window, text="open connection", command=lambda
