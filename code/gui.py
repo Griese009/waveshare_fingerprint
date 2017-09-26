@@ -130,6 +130,14 @@ class App:
                     self.label1.config(text="Befehl war: erfolgreich", bg="green")
                 else:
                     self.label1.config(text="Bfehl war: nicht erfolgreich", bg="red")
+            elif command == "ask_1_to_N":
+                try:
+                    if self.reader.send_command(command):
+                        self.label1.config(text="Befehl war: erfolgreich", bg="green")
+                    else:
+                        self.label1.config(text="Befehl war: nicht erfolgreich", bg="red")
+                except Exception as e:
+                    print(e)
             else:  # for all other commands (just need the user id)
                 try:
                     a = int(a)
