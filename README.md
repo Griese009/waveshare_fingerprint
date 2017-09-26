@@ -21,6 +21,6 @@ First of all import the script and then u can call the following commands with t
 # Requiremets
 Code Written in Python 3.6.2                                                                                                         
 Needed Packages/ Hardware:                                                                                                                 
-* serial
+* pyserial
 * UART to USB Adapter
 * the UART Waveshare Sensor
